@@ -33,7 +33,7 @@ public class Relation {
 	}
 
 	public Word getWord2() {
-		return word2;
+		return word2; 
 	}
 
 	public void setWord2(Word word2) {

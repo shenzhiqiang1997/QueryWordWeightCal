@@ -1,10 +1,8 @@
-package test;
+package util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Random;
 
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
@@ -16,17 +14,19 @@ import edu.stanford.nlp.trees.TypedDependency;
 import model.Relation;
 import model.Word;
 
-public class Test {
-	public static void main(String[] args) {
+public class WeightUtil {
+	/**
+	 * @param sentence 要分词的句子
+	 * @param model 分词的模式
+	 * @return 返回每个词以及其权重的键值对
+	 */
+	public static final String model = "edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz";
+	
+	public static HashMap<String, Double> calWeight(String sentence) {
 		HashMap<String,Tree> wordNodes=new HashMap<>();
 		List<Relation> relations=new ArrayList<>();
 		HashMap<String, Double> wordWeights=new HashMap<>();
 		
-		// 要分词的句子
-		String sentence = "I love you and you love me";
-		// 分词的模式
-		String model = "edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz";
-
 		// 获取分词器对象
 		LexicalizedParser parser = LexicalizedParser.loadModel(model);
 		// 通过分词器分词 得到语法树
@@ -37,10 +37,6 @@ public class Test {
 		// 在计算R(单词) 时需要移除
 		wordNodes.put("ROOT", root);
 		
-		// 输出语法树
-		System.out.println("tree:" + root);
-		System.out.println();
-
 		// 得到树的每个叶子 即每个单词对应的节点
 		List<Tree> leaves = root.getLeaves();
 		for (Tree node : leaves) {
@@ -57,11 +53,8 @@ public class Test {
 		// 从语法结构得到所有dependency
 		List<TypedDependency> dependencies = gs.typedDependenciesCCprocessed();
 		
-		System.out.println("dependencies:");
 		//遍历dependency
 		for (TypedDependency dependency : dependencies) {
-			System.out.println(dependency);
-			
 			String relationName=dependency.reln().toString();
 			Tree leaf1=wordNodes.get(dependency.dep().value());
 			Tree leaf2=wordNodes.get(dependency.gov().value());
@@ -75,19 +68,8 @@ public class Test {
 		//计算每个关系的R
 		calculateR(relations);
 		
-		//得到完整的关系
-		System.out.println("relations:");
-		for (Relation relation : relations) {
-			System.out.println(relation);
-		}
-		System.out.println();
-		
-		
 		//根据所有关系计算总权重
 		double totalImportance=getTotalImportance(relations);
-		System.out.println("total importance:");
-		System.out.println(totalImportance);
-		System.out.println();
 		
 		//统计单词个数
 		int t=leaves.size();
@@ -98,12 +80,7 @@ public class Test {
 			wordWeights.put(word, weight);
 		}
 		
-		System.out.println("word weights:");
-		Iterator<Entry<String,Double>> iterator=wordWeights.entrySet().iterator();
-		while(iterator.hasNext()) {
-			System.out.println(iterator.next());
-		}
-		
+		return wordWeights;
 	}
 
 	/**
@@ -269,3 +246,4 @@ public class Test {
 		return weight;
 	}
 }
+
